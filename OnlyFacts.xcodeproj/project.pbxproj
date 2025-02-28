@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		0A7171E82D6B2B4E0079A77D /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 0A7171E72D6B2B4E0079A77D /* Supabase */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		0A7171C62D6B28F40079A77D /* OnlyFacts.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OnlyFacts.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -23,6 +27,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0A7171E82D6B2B4E0079A77D /* Supabase in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -33,6 +38,7 @@
 			isa = PBXGroup;
 			children = (
 				0A7171C82D6B28F40079A77D /* OnlyFacts */,
+				0A7171E62D6B2B4E0079A77D /* Frameworks */,
 				0A7171C72D6B28F40079A77D /* Products */,
 			);
 			sourceTree = "<group>";
@@ -43,6 +49,13 @@
 				0A7171C62D6B28F40079A77D /* OnlyFacts.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		0A7171E62D6B2B4E0079A77D /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -65,6 +78,7 @@
 			);
 			name = OnlyFacts;
 			packageProductDependencies = (
+				0A7171E72D6B2B4E0079A77D /* Supabase */,
 			);
 			productName = OnlyFacts;
 			productReference = 0A7171C62D6B28F40079A77D /* OnlyFacts.app */;
@@ -94,6 +108,9 @@
 			);
 			mainGroup = 0A7171BD2D6B28F40079A77D;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				0A7171D82D6B29190079A77D /* XCRemoteSwiftPackageReference "supabase-swift" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 0A7171C72D6B28F40079A77D /* Products */;
 			projectDirPath = "";
@@ -260,6 +277,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -289,6 +307,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -324,6 +343,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		0A7171D82D6B29190079A77D /* XCRemoteSwiftPackageReference "supabase-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/supabase/supabase-swift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.5.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		0A7171E72D6B2B4E0079A77D /* Supabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0A7171D82D6B29190079A77D /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Supabase;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 0A7171BE2D6B28F40079A77D /* Project object */;
 }
