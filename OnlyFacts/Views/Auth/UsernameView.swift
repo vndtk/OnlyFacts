@@ -4,7 +4,6 @@ struct UsernameView: View {
     @EnvironmentObject var authViewModel: AuthViewModel
 
     @State private var username: String = ""
-    @State private var errorMessage: String?
 
     init() {
         print("UsernameView initialized.")
@@ -30,17 +29,11 @@ struct UsernameView: View {
                 
                 LoginButtonView(title: "Continue", action: {
                     Task {
-                        do {
-                            try await authViewModel.updateUsername(username: username)
-                        } catch AuthError.failedToUpdateProfile {
-                            errorMessage = "Error updating profile. Please try again."
-                        } catch {
-                            errorMessage = "An unknown error occurred. Please try again."
-                        }
+                        await authViewModel.updateUsername(username: username)
                     }
                 }, isLoading: authViewModel.isLoading)
 
-                if let errorMessage = errorMessage {
+                if let errorMessage = authViewModel.errorMessage {
                     InlineErrorView(message: errorMessage)
                 }
             }

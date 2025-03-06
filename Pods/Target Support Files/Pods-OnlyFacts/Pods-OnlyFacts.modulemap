@@ -1,0 +1,6 @@
+framework module Pods_OnlyFacts {
+  umbrella header "Pods-OnlyFacts-umbrella.h"
+
+  export *
+  module * { export * }
+}

@@ -78,8 +78,6 @@ struct ToastErrorView: View {
     
     var body: some View {
         VStack {
-            Spacer()
-            
             if isPresented.wrappedValue {
                 HStack(spacing: 12) {
                     Image(systemName: "exclamationmark.circle.fill")

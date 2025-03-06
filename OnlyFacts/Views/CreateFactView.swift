@@ -10,13 +10,43 @@ import SwiftUI
 struct CreateFactView: View {
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var authViewModel: AuthViewModel
-    
+    @EnvironmentObject var factsViewModel: FactsViewModel
+
     @State private var category: String = "General"
     @State private var content: String = ""
     @State private var isSubmitting = false
     
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
+            VStack(alignment: .leading, spacing: 8) {
+                TextEditor(text: $content)
+                    .frame(minHeight: 100)
+                    .padding(8)
+                    .background(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(Color.secondary.opacity(0.3), lineWidth: 1)
+                    )
+                    .overlay(
+                        Group {
+                            if content.isEmpty {
+                                VStack {
+                                    HStack {
+                                        Text("Share an interesting fact...")
+                                            .foregroundColor(.gray)
+                                            .multilineTextAlignment(.leading)
+                                            .allowsHitTesting(false)
+                                        
+                                        Spacer()
+                                    }
+
+                                    Spacer()
+                                }
+                                .padding()
+                            }
+                        }
+                    )
+            }
+
             VStack(alignment: .leading, spacing: 8) {
                 Text("Category")
                     .font(.headline)
@@ -40,36 +70,17 @@ struct CreateFactView: View {
                 .padding(.vertical, 5)
             }
             
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Your Fact")
-                    .font(.headline)
-                    .foregroundColor(.secondary)
-                
-                TextEditor(text: $content)
-                    .frame(minHeight: 150)
-                    .padding(8)
-                    .background(
-                        RoundedRectangle(cornerRadius: 8)
-                            .stroke(Color.secondary.opacity(0.3), lineWidth: 1)
-                    )
-                    .overlay(
-                        Group {
-                            if content.isEmpty {
-                                Text("Share an interesting fact...")
-                                    .foregroundColor(.gray)
-                                    .multilineTextAlignment(.leading)
-                                    .allowsHitTesting(false)
-                            }
-                        }
-                    )
-            }
-            
             Spacer()
-            
             Button(action: {
                 isSubmitting = true
-                // Here you would add the logic to submit the fact
-                // using SupabaseService
+                Task {
+                    do {
+                        try await factsViewModel.createFact(content: content, category: category)
+                    } catch {
+                        print("Error creating fact: \(error)")
+                    }
+                }
+                isSubmitting = false
             }) {
                 HStack {
                     Text("Submit")

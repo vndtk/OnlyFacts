@@ -4,7 +4,6 @@ struct LoginView: View {
     @EnvironmentObject var authViewModel: AuthViewModel
 
     @State private var email: String = ""
-    @State private var errorMessage: String?
 
     init() {
         print("LoginView initialized.")
@@ -30,17 +29,11 @@ struct LoginView: View {
                 
                 LoginButtonView(title: "Log in", action: {
                     Task {
-                        do {
-                            try await authViewModel.login(email: email)
-                        } catch AuthError.failedToSendOTP {
-                            errorMessage = "Error sending OTP. Please try again."
-                        } catch {
-                            errorMessage = "An unknown error occurred. Please try again."
-                        }
+                        await authViewModel.login(email: email)
                     }
                 }, isLoading: authViewModel.isLoading)
 
-                if let errorMessage = errorMessage {
+                if let errorMessage = authViewModel.errorMessage {
                     InlineErrorView(message: errorMessage)
                 }
             }

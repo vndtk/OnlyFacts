@@ -12,6 +12,11 @@ struct Fact: Codable, Identifiable, Hashable {
     let category: String
     let likes: Int
     let dislikes: Int
+    let author: String
     let image: String?
-    let author: String? // author id
+}
+
+struct FactCategory: Codable, Identifiable, Hashable {
+    let id: String
+    let name: String
 }

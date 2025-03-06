@@ -19,7 +19,7 @@ struct ProfileView: View {
                             .foregroundColor(.indigo)
                         
                         VStack(alignment: .leading) {
-                            Text(user.username ?? "No username set")
+                            Text(user.profile?.username ?? "No username set")
                                 .font(.headline)
                             
                             Text(user.email)

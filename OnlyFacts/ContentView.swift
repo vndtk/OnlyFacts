@@ -13,30 +13,14 @@ struct ContentView: View {
     @StateObject private var authViewModel = AuthViewModel()
     @StateObject private var factsViewModel = FactsViewModel()
     
-    @State private var isCreatingFact: Bool = false
-
-    init() {
-        print("ContentView initialized.")
-    }
+    @State private var isCreatingFact = false
     
     var body: some View {
-        NavigationStack(path: $authViewModel.authData.path) {
+        NavigationStack(path: $authViewModel.path) {
             VStack(alignment: .leading) {
-                HStack {
-                    Text("Facts")
-                        .font(.largeTitle)
-                        .bold()
-
-                    Spacer()
-                    
-                    if authViewModel.authState == .loggedIn {
-                        NavigationLink(destination: ProfileView()) {
-                            Image(systemName: "person.fill")
-                                .font(.title)
-                                .foregroundColor(.primary)
-                        }
-                    }
-                }
+                ToastErrorView(message: factsViewModel.errorMessage ?? "", isPresented: $factsViewModel.displayErrorMessage)
+                
+                MainHeader()
 
                 ScrollView {
                     ForEach(factsViewModel.facts) { fact in
@@ -50,39 +34,13 @@ struct ContentView: View {
                     FactDetails(fact: fact)
                 }
                 
-                HStack {
-                    Spacer()
-                    
-                    Button(action: {
-                        if authViewModel.authState == .loggedIn {
-                            isCreatingFact.toggle()
-                        } else {
-                            authViewModel.navigateToAuth()
-                        }
-                    }) {
-                        ZStack {
-                            Circle().fill(.indigo)
-                                .frame(width: 50, height: 50)
-                            
-                            Image(systemName: "plus")
-                                .resizable()
-                                .scaledToFill()
-                                .foregroundStyle(.white)
-                                .frame(width: 30, height: 30)
-                        }
-                        
+                CreateFactButton(action: {
+                    if authViewModel.authState == .loggedIn {
+                        isCreatingFact.toggle()
+                    } else {
+                        authViewModel.navigateToAuth()
                     }
-                    .sheet(isPresented: $isCreatingFact) {
-                        VStack {
-                            SheetHeaderView(action: {
-                                isCreatingFact.toggle()
-                            })
-                            Spacer()
-                            CreateFactView()
-                        }
-                        .padding()
-                    }
-                }
+                })
             }
             .padding()
             .navigationDestination(for: String.self) { path in
@@ -97,13 +55,22 @@ struct ContentView: View {
                         ErrorView(message: "An unknown error occurred. Please try again.")
                 }
             }
+            .sheet(isPresented: $isCreatingFact) {
+                VStack {
+                    SheetHeaderView(action: {
+                        isCreatingFact.toggle()
+                    })
+                    Spacer()
+                    CreateFactView()
+                }
+                .padding()
+            }   
+            .task {
+                await factsViewModel.getFacts()
+            }
         }
         .environmentObject(authViewModel)
-        .task {
-            factsViewModel.getFacts()
-        }
-        
-        
+        .environmentObject(factsViewModel)
     }
 }
 

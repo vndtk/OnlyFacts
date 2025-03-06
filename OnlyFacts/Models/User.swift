@@ -3,7 +3,7 @@ import Foundation
 struct User: Codable {
     let id: UUID
     var email: String
-    var username: String?
+    var profile: UserProfile?
 }
 
 struct UserProfile: Codable {

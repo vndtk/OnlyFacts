@@ -1,32 +1,18 @@
-//
-//  AuthViewModel.swift
-//  OnlyFacts
-//
-//  Created by Vlady Schmidt on 2/24/25.
-//
-
 import Foundation
 import SwiftUI
+
 enum AuthState {
     case loggedIn, loggedOut, needsUsername, needsVerification
 }
 
-enum AuthError: Error {
-    case userAlreadyExists, failedToSendOTP, failedToVerifyOTP, failedToUpdateProfile
-}
-
-struct AuthData {
-    var email: String?
-    var username: String?
-    var token: String?
-    var path: NavigationPath = NavigationPath()
-}
-
 class AuthViewModel: ObservableObject {
     @Published var authState: AuthState = .loggedOut
-    @Published var authData: AuthData = AuthData()
+    @Published var path = NavigationPath()
+
+    @Published var isLoading = false
+    @Published var displayError = false
+    @Published var errorMessage: String?
     @Published var user: User?
-    @Published var isLoading: Bool = false
     
     private let supabase = SupabaseService.shared
     
@@ -38,95 +24,118 @@ class AuthViewModel: ObservableObject {
 
     @MainActor
     func checkAuthState() async {
-        if let user = await supabase.getUser() {
-            self.user = user
-            if user.username == nil {
-                self.authState = .needsUsername
-                authData.path.append("username")
+        do {
+            if var user = try await supabase.getUser() {
+                if let profile = try await supabase.getUserProfile(id: user.id.uuidString) {
+                    user.profile = profile
+                } else {
+                    authState = .needsUsername
+                }
+
+                self.user = user
             } else {
-                self.authState = .loggedIn
+                authState = .loggedOut
             }
-        } else {
-            self.authState = .loggedOut
+        } catch {
+            authState = .loggedOut
+        }
+    }
+
+    func signIn() async {
+        defer { isLoading = false }
+
+        isLoading = true
+
+        do {
+            try await supabase.signIn()
+        } catch {
+            errorMessage = "Failed to sign in. Please try again."
+            displayError = true
         }
     }
 
     @MainActor
-    func login(email: String) async throws{
+    func login(email: String) async {
+        defer { isLoading = false }
+
         isLoading = true
-        authData.email = email
 
-        let isOTPSent = await supabase.sendOTP(email: email)
-        if isOTPSent {
-            self.authState = .needsVerification
-            authData.path.append("verification")
-        } else {
-            isLoading = false
-            throw AuthError.failedToSendOTP
+        let newUser = User(id: UUID(), email: email, profile: nil)
+        do {
+            try await supabase.sendOTP(email: email)
+            authState = .needsVerification
+            path.append("verification")
+            user = newUser
+        } catch {
+            errorMessage = "Failed to send OTP. Please try again."
+            displayError = true
         }
-
-        isLoading = false
     }
     
     @MainActor
-    func verify(code: String) async throws {
-        isLoading = true
-        
-        guard let email = authData.email else {
-            isLoading = false
-            throw AuthError.failedToVerifyOTP
-        }
-        
-        let result = await supabase.verifyOTP(email: email, token: code)
-        if result {
-            guard let user = await supabase.getUser() else {
-                isLoading = false
-                throw AuthError.failedToVerifyOTP
-            }
-
-            if user.username == nil {
-                self.authState = .needsUsername
-                authData.path.append("username")
-            } else {
-                self.authState = .loggedIn
-            }
-            
-            self.user = user
-        } else {
-            isLoading = false
-            throw AuthError.failedToVerifyOTP
-        }
-        
-        isLoading = false
-    }
-    
-    @MainActor
-    func updateUsername(username: String) async throws {
-        isLoading = true
-
+    func verify(code: String) async {
         guard let user = self.user else {
             isLoading = false
-            throw AuthError.failedToUpdateProfile
+            errorMessage = "Failed to verify OTP. Please try again."
+            displayError = true
+            return
         }
 
-        let success = await supabase.updateUserProfile(user: user, username: username)
-        if success {
-            self.user = await supabase.getUser()
-            authData.path = NavigationPath()
-        } else {
-            throw AuthError.failedToUpdateProfile
-        }
+        defer { isLoading = false }
+
+        isLoading = true
         
-        isLoading = false
+        do {
+            print("Verifying OTP: \(code)")
+
+            try await supabase.verifyOTP(email: user.email, token: code)
+            if var user = try await supabase.getUser() {
+                print("User: \(user)")
+                if let profile = try await supabase.getUserProfile(id: user.id.uuidString) {
+                    print("Profile: \(profile)")
+                    user.profile = profile
+                    authState = .loggedIn
+                    path = NavigationPath()
+                } else {
+                    print("No profile found")
+                    authState = .needsUsername
+                }
+
+                self.user = user
+            }
+        } catch {
+            errorMessage = "Failed to verify OTP. Please try again."
+            displayError = true
+        }
+    }
+    
+    @MainActor
+    func updateUsername(username: String) async {
+        guard let user = self.user else {
+            isLoading = false
+            errorMessage = "Failed to update username. Please try again."
+            displayError = true
+            return
+        }
+        defer { isLoading = false }
+
+        isLoading = true
+
+        do {
+            try await supabase.updateUserProfile(user: user, username: username)
+            authState = .loggedIn
+        } catch {
+            errorMessage = "Failed to update username. Please try again."
+            displayError = true
+        }
     }
 
     func goBack() {
-        authData.path.removeLast()
+        path.removeLast()
     }
 
     func navigateToAuth() {
         authState = .loggedOut
-        authData.path = NavigationPath()
-        authData.path.append("login")
+        path.append("login")
     }
 }

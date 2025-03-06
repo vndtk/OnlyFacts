@@ -4,7 +4,6 @@ struct VerificationView: View {
     @EnvironmentObject var authViewModel: AuthViewModel
 
     @State private var otp: String = ""
-    @State private var errorMessage: String?
 
     init() {
         print("VerificationView initialized.")
@@ -30,17 +29,11 @@ struct VerificationView: View {
                 
                 LoginButtonView(title: "Verify", action: {
                     Task {
-                        do {
-                            try await authViewModel.verify(code: otp)
-                        } catch AuthError.failedToVerifyOTP {
-                            errorMessage = "Error verifying OTP. Please check your email and try again."
-                        } catch {
-                            errorMessage = "An unknown error occurred. Please try again."
-                        }
+                        await authViewModel.verify(code: otp)
                     }
                 }, isLoading: authViewModel.isLoading)
 
-                if let errorMessage = errorMessage {
+                if let errorMessage = authViewModel.errorMessage {
                     InlineErrorView(message: errorMessage)
                 }
             }
